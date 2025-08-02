@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load the MNIST dataset
+mnist = tf.keras.datasets.mnist
+
+# Split the dataset into training and testing sets
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize the images to the range of [0, 1]
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+model = models.Sequential([
+    layers.Flatten(input_shape=(28, 28)),
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(x_train, y_train, epochs=5)
+
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print('\nTest accuracy:', test_acc)
+
+predictions = model.predict(x_test[:10])
+
+plt.figure(figsize=(10, 8))
+for i in range(10):
+    plt.subplot(5, 4, 2*i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(x_test[i], cmap=plt.cm.binary)
+    plt.xlabel(f'True: {y_test[i]}')
+    plt.subplot(5, 4, 2*i+2)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(x_test[i], cmap=plt.cm.binary)
+    plt.xlabel(f'Pred: {np.argmax(predictions[i])}')
+plt.tight_layout()
+plt.show()
